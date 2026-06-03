@@ -1,0 +1,14 @@
+# Render Blueprint — Team Bahria Project Progress Dashboard
+# Static React (Vite) site. Render auto-detects this file on connect.
+services:
+  - type: web
+    name: team-bahria-progress
+    runtime: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    # SPA fallback so client-side routes resolve to index.html
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
