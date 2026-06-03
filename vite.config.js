@@ -3,8 +3,8 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
-  // Repo name as base so assets resolve correctly on GitHub Pages.
-  base: '/team-bahria-progress/',
+  // Relative base so assets resolve on BOTH Render (root) and GitHub Pages (subpath).
+  base: './',
   server: {
     port: 5173,
     open: true
