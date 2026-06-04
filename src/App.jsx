@@ -1,11 +1,17 @@
+import { useState } from 'react'
 import {
   project,
   tracks,
   milestones,
   modules,
   ganttCharts,
+  combinedTimeline,
+  labOperationsModules,
+  labDependencyNote,
   overallProgress,
 } from './data.js'
+import Analytics from './Analytics.jsx'
+import { generateReport } from './pdfReport.js'
 
 const STATUS_LABEL = {
   done: 'Completed',
@@ -23,7 +29,7 @@ function StatusPill({ status }) {
   )
 }
 
-function Header() {
+function Header({ view, setView }) {
   return (
     <header className="header">
       <div className="brand">
@@ -34,7 +40,26 @@ function Header() {
         </div>
       </div>
       <div className="header-meta">
-        <span className="week-badge">Currently in Week {project.currentWeek} / {project.totalWeeks}</span>
+        <span className="week-badge">
+          Currently in Week {project.currentWeek} / {project.totalWeeks}
+        </span>
+        <div className="toolbar">
+          <button
+            className={`tab-btn ${view === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setView('dashboard')}
+          >
+            📋 Dashboard
+          </button>
+          <button
+            className={`tab-btn ${view === 'analytics' ? 'active' : ''}`}
+            onClick={() => setView('analytics')}
+          >
+            📊 Analytics
+          </button>
+          <button className="pdf-btn" onClick={generateReport}>
+            📄 Generate PDF Report
+          </button>
+        </div>
       </div>
     </header>
   )
@@ -65,7 +90,7 @@ function StatCards() {
   const inProgress = modules.filter((m) => m.status === 'in-progress').length
   const pending = modules.filter((m) => m.status === 'pending').length
   const cards = [
-    { label: 'Overall Completion', value: `${overall}%`, accent: 'blue' },
+    { label: 'Indent Vetting Completion', value: `${overall}%`, accent: 'blue' },
     { label: 'Foundation Phases', value: `${milestones.length}/${milestones.length} Done`, accent: 'green' },
     { label: 'Active Modules', value: inProgress, accent: 'amber' },
     { label: 'Pending Modules', value: pending, accent: 'grey' },
@@ -106,9 +131,7 @@ function GanttChart({ track, status, modules: mods }) {
   return (
     <section className="card">
       <div className="gantt-title-row">
-        <h3 className="card-title gantt-card-title">
-          Gantt Timeline — {track}
-        </h3>
+        <h3 className="card-title gantt-card-title">Gantt Timeline — {track}</h3>
         <StatusPill status={status} />
       </div>
       <div className="gantt">
@@ -145,12 +168,7 @@ function GanttChart({ track, status, modules: mods }) {
                     {active && (
                       <div className={`gantt-bar bar-${m.status}`}>
                         {w === m.startWeek && m.progress > 0 && (
-                          <div
-                            className="gantt-fill"
-                            style={{
-                              width: `${m.progress}%`,
-                            }}
-                          />
+                          <div className="gantt-fill" style={{ width: `${m.progress}%` }} />
                         )}
                       </div>
                     )}
@@ -172,12 +190,67 @@ function GanttChart({ track, status, modules: mods }) {
   )
 }
 
-function ModuleProgress() {
+// Combined timeline — both tracks on one schedule, coloured by track.
+function CombinedGantt() {
+  const weeks = Array.from({ length: combinedTimeline.totalWeeks }, (_, i) => i + 1)
   return (
     <section className="card">
-      <h3 className="card-title">Module-wise Progress & Details — AI-Enabled Indent Vetting</h3>
+      <div className="gantt-title-row">
+        <h3 className="card-title gantt-card-title">
+          Combined Gantt Timeline — Both Modules
+        </h3>
+        <span className="combined-span">{combinedTimeline.totalWeeks} Weeks</span>
+      </div>
+      <div className="dependency-note">⛓ {combinedTimeline.note}</div>
+      <div className="gantt">
+        <div className="gantt-head">
+          <div className="gantt-name-col">Module (Track)</div>
+          <div className="gantt-weeks" style={gridCols(weeks.length)}>
+            {weeks.map((w) => (
+              <div key={w} className="gantt-week-label">W{w}</div>
+            ))}
+          </div>
+        </div>
+
+        {combinedTimeline.rows.map((m, idx) => (
+          <div className="gantt-row" key={idx}>
+            <div className="gantt-name-col">
+              <span className="gantt-mod-name">{m.name}</span>
+              <span className="gantt-mod-weeks">Week {m.startWeek}–{m.endWeek}</span>
+            </div>
+            <div className="gantt-weeks" style={gridCols(weeks.length)}>
+              {weeks.map((w) => {
+                const active = w >= m.startWeek && w <= m.endWeek
+                return (
+                  <div key={w} className="gantt-cell">
+                    {active && <div className={`gantt-bar track-bar-${m.track}`} />}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        ))}
+
+        <div className="gantt-legend">
+          <span><i className="lg track-bar-indent" /> Indent Vetting</span>
+          <span><i className="lg track-bar-lab" /> Lab Operations</span>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function gridCols(n) {
+  return { gridTemplateColumns: `repeat(${n}, 1fr)`, minWidth: `${n * 46}px` }
+}
+
+function ModuleProgress({ title, mods, note }) {
+  return (
+    <section className="card">
+      <h3 className="card-title">{title}</h3>
+      {note && <div className="dependency-note">⛓ {note}</div>}
       <div className="module-list">
-        {modules.map((m) => (
+        {mods.map((m) => (
           <div className="module-item" key={m.id}>
             <div className="module-top">
               <div className="module-id">{m.id}</div>
@@ -209,9 +282,7 @@ function ModuleProgress() {
 function Footer() {
   return (
     <footer className="footer">
-      <p>
-        {project.company} · {project.title}
-      </p>
+      <p>{project.company} · {project.title}</p>
       <p className="footer-sub">
         Status as of Week {project.currentWeek} — Timeline follows the approved Gantt chart.
       </p>
@@ -220,22 +291,38 @@ function Footer() {
 }
 
 export default function App() {
+  const [view, setView] = useState('dashboard')
   return (
     <div className="app">
-      <Header />
+      <Header view={view} setView={setView} />
       <main className="content">
-        <ProjectBanner />
-        <StatCards />
-        <Milestones />
-        {ganttCharts.map((g) => (
-          <GanttChart
-            key={g.track}
-            track={g.track}
-            status={g.status}
-            modules={g.modules}
-          />
-        ))}
-        <ModuleProgress />
+        {view === 'dashboard' ? (
+          <>
+            <ProjectBanner />
+            <StatCards />
+            <Milestones />
+            {ganttCharts.map((g) => (
+              <GanttChart
+                key={g.track}
+                track={g.track}
+                status={g.status}
+                modules={g.modules}
+              />
+            ))}
+            <CombinedGantt />
+            <ModuleProgress
+              title="Module-wise Progress & Details — AI-Enabled Indent Vetting"
+              mods={modules}
+            />
+            <ModuleProgress
+              title="Module-wise Progress & Details — AI-Enabled Lab Operations"
+              mods={labOperationsModules}
+              note={labDependencyNote}
+            />
+          </>
+        ) : (
+          <Analytics />
+        )}
       </main>
       <Footer />
     </div>

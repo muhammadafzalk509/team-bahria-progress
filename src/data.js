@@ -103,9 +103,14 @@ const indentVettingModules = [
   },
 ]
 
+// Dependency: Lab Operations cannot start until Indent Vetting data
+// has been inserted into the Vector DB (i.e. after IV Week 8).
+export const labDependencyNote =
+  'AI-Enabled Lab Operations starts only AFTER the AI-Enabled Indent Vetting data is inserted into the Vector DB (post Week 8). Until then all Lab modules remain pending.'
+
 // ---- Track 2: AI-Enabled Lab Operations (not started) ----
 // Same 12-week pipeline structure — ALL modules pending until kickoff.
-const labOperationsModules = [
+export const labOperationsModules = [
   {
     id: 1,
     name: 'Gathering Lab Data (Digitalization)',
@@ -179,6 +184,81 @@ export const ganttCharts = [
 
 // Active track used for stat cards & detailed module progress.
 export const modules = indentVettingModules
+export { indentVettingModules }
+
+// ---- Combined timeline (both tracks on ONE schedule) ----
+// Lab Operations is offset by +8 weeks because it can only begin after
+// Indent Vetting's Vector DB data insertion (post Week 8). Total = 20 weeks.
+const LAB_OFFSET = 8
+export const combinedTimeline = {
+  totalWeeks: 20,
+  note: labDependencyNote,
+  rows: [
+    ...indentVettingModules.map((m) => ({
+      name: `IV · ${m.name}`,
+      track: 'indent',
+      startWeek: m.startWeek,
+      endWeek: m.endWeek,
+      status: m.status,
+    })),
+    ...labOperationsModules.map((m) => ({
+      name: `LAB · ${m.name}`,
+      track: 'lab',
+      startWeek: m.startWeek + LAB_OFFSET,
+      endWeek: m.endWeek + LAB_OFFSET,
+      status: m.status,
+    })),
+  ],
+}
+
+// ---- Weekly cumulative progress (for the line graph) ----
+// Planned cumulative completion % per week for each track.
+// Indent Vetting runs Weeks 1-12; Lab Operations begins Week 9 (after IV Vector DB).
+export const weeklyProgress = [
+  { week: 'W1', indent: 5, lab: 0 },
+  { week: 'W2', indent: 15, lab: 0 },
+  { week: 'W3', indent: 22, lab: 0 }, // current actual point
+  { week: 'W4', indent: 30, lab: 0 },
+  { week: 'W5', indent: 40, lab: 0 },
+  { week: 'W6', indent: 52, lab: 0 },
+  { week: 'W7', indent: 64, lab: 0 },
+  { week: 'W8', indent: 76, lab: 0 },
+  { week: 'W9', indent: 83, lab: 5 },
+  { week: 'W10', indent: 90, lab: 12 },
+  { week: 'W11', indent: 96, lab: 22 },
+  { week: 'W12', indent: 100, lab: 34 },
+  { week: 'W13', indent: 100, lab: 46 },
+  { week: 'W14', indent: 100, lab: 56 },
+  { week: 'W15', indent: 100, lab: 66 },
+  { week: 'W16', indent: 100, lab: 76 },
+  { week: 'W17', indent: 100, lab: 84 },
+  { week: 'W18', indent: 100, lab: 91 },
+  { week: 'W19', indent: 100, lab: 96 },
+  { week: 'W20', indent: 100, lab: 100 },
+]
+
+// Generic weighted completion for any module set (by week duration).
+function weightedProgress(mods) {
+  let totalW = 0
+  let done = 0
+  for (const m of mods) {
+    const w = m.endWeek - m.startWeek + 1
+    totalW += w
+    done += w * (m.progress / 100)
+  }
+  return totalW ? Math.round((done / totalW) * 100) : 0
+}
+
+export function indentProgress() {
+  return weightedProgress(indentVettingModules)
+}
+export function labProgress() {
+  return weightedProgress(labOperationsModules)
+}
+// Total project = average of both tracks.
+export function totalProgress() {
+  return Math.round((indentProgress() + labProgress()) / 2)
+}
 
 // Weighted overall completion (by module duration in weeks) for the ACTIVE track.
 export function overallProgress() {
