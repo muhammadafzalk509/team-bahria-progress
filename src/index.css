@@ -147,6 +147,15 @@ body {
 .milestone p { color: var(--muted); font-size: 12px; margin-top: 3px; }
 
 /* ---------- Gantt ---------- */
+.gantt-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; flex-wrap: wrap;
+}
+.gantt-card-title { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.gantt-title-row {
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
 .gantt { overflow-x: auto; }
 .gantt-head, .gantt-row { display: flex; align-items: stretch; }
 .gantt-name-col {

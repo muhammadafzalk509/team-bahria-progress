@@ -3,6 +3,7 @@ import {
   tracks,
   milestones,
   modules,
+  ganttCharts,
   overallProgress,
 } from './data.js'
 
@@ -100,11 +101,16 @@ function Milestones() {
   )
 }
 
-function GanttChart() {
+function GanttChart({ track, status, modules: mods }) {
   const weeks = Array.from({ length: project.totalWeeks }, (_, i) => i + 1)
   return (
     <section className="card">
-      <h3 className="card-title">Gantt Timeline — 12 Weeks</h3>
+      <div className="gantt-title-row">
+        <h3 className="card-title gantt-card-title">
+          Gantt Timeline — {track}
+        </h3>
+        <StatusPill status={status} />
+      </div>
       <div className="gantt">
         <div className="gantt-head">
           <div className="gantt-name-col">Module</div>
@@ -120,7 +126,7 @@ function GanttChart() {
           </div>
         </div>
 
-        {modules.map((m) => (
+        {mods.map((m) => (
           <div className="gantt-row" key={m.id}>
             <div className="gantt-name-col">
               <span className="gantt-mod-name">{m.name}</span>
@@ -169,7 +175,7 @@ function GanttChart() {
 function ModuleProgress() {
   return (
     <section className="card">
-      <h3 className="card-title">Module-wise Progress & Details</h3>
+      <h3 className="card-title">Module-wise Progress & Details — AI-Enabled Indent Vetting</h3>
       <div className="module-list">
         {modules.map((m) => (
           <div className="module-item" key={m.id}>
@@ -221,7 +227,14 @@ export default function App() {
         <ProjectBanner />
         <StatCards />
         <Milestones />
-        <GanttChart />
+        {ganttCharts.map((g) => (
+          <GanttChart
+            key={g.track}
+            track={g.track}
+            status={g.status}
+            modules={g.modules}
+          />
+        ))}
         <ModuleProgress />
       </main>
       <Footer />
