@@ -50,10 +50,10 @@ const indentVettingModules = [
     endWeek: 2,
     duration: '2 Weeks',
     dependency: 'Initial Phase',
-    status: 'in-progress',
-    progress: 80,
+    status: 'done',
+    progress: 100,
     detail:
-      'Hardcopy data is being converted into softcopy (digital form). 80% complete — remaining relevant data is still pending.',
+      'Data scanning & digitalization module is 100% complete — all hardcopy indent data has been converted into softcopy (digital form).',
   },
   {
     id: 2,
