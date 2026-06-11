@@ -273,14 +273,15 @@ export function totalProgress() {
 }
 
 // Weighted overall completion (by module duration in weeks) for the ACTIVE track.
+// Duration is derived from each module's startWeek/endWeek so adding or
+// renumbering modules can never produce NaN.
 export function overallProgress() {
-  const weeks = { 1: 2, 2: 3, 3: 4, 4: 4, 5: 2 }
   let totalW = 0
   let done = 0
   for (const m of indentVettingModules) {
-    const w = weeks[m.id]
+    const w = Math.max(1, m.endWeek - m.startWeek + 1)
     totalW += w
     done += w * (m.progress / 100)
   }
-  return Math.round((done / totalW) * 100)
+  return totalW ? Math.round((done / totalW) * 100) : 0
 }
