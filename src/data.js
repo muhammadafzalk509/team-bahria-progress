@@ -56,7 +56,7 @@ const indentVettingModules = [
       'Data scanning & digitalization module is 100% complete — all hardcopy indent data has been converted into softcopy (digital form).',
   },
   {
-    id: 6,
+    id: 2,
     name: 'Gathering Relevant Data (Standards)',
     startWeek: 2,
     endWeek: 3,
@@ -68,7 +68,7 @@ const indentVettingModules = [
       'Collection & digitalization of the remaining relevant data (standards). Currently pending.',
   },
   {
-    id: 2,
+    id: 3,
     name: 'System Architecture',
     startWeek: 2,
     endWeek: 4,
@@ -80,7 +80,7 @@ const indentVettingModules = [
       'Design is 60% complete as per requirements. The remaining ~30% will be finalized once data gathering reaches 100%.',
   },
   {
-    id: 3,
+    id: 4,
     name: 'FastAPI & Vector DB',
     startWeek: 5,
     endWeek: 8,
@@ -92,7 +92,7 @@ const indentVettingModules = [
       'Data alignment for Vector DB + backend implementation. Will begin once the architecture is finalized.',
   },
   {
-    id: 4,
+    id: 5,
     name: 'Frontend & Integration',
     startWeek: 9,
     endWeek: 12,
@@ -103,7 +103,7 @@ const indentVettingModules = [
     detail: 'UI/UX build + full-stack integration with backend. Currently pending.',
   },
   {
-    id: 5,
+    id: 6,
     name: 'Testing',
     startWeek: 11,
     endWeek: 12,
