@@ -56,6 +56,18 @@ const indentVettingModules = [
       'Data scanning & digitalization module is 100% complete — all hardcopy indent data has been converted into softcopy (digital form).',
   },
   {
+    id: 6,
+    name: 'Gathering Relevant Data (Standards)',
+    startWeek: 2,
+    endWeek: 3,
+    duration: '2 Weeks',
+    dependency: 'Follows Data Scanning',
+    status: 'pending',
+    progress: 0,
+    detail:
+      'Collection & digitalization of the remaining relevant data (standards). Currently pending.',
+  },
+  {
     id: 2,
     name: 'System Architecture',
     startWeek: 2,
